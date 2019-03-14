@@ -8,14 +8,12 @@
 #include <ESPmDNS.h>
 #include <WebServer.h>
 #include <Update.h>
-#include "SparkFunLSM6DS3.h"
-#include "Wire.h"
-#include "SPI.h"
 
-LSM6DS3 myIMU(SPI_MODE,24); //Default constructor is I2C, addr 0x6B
+
+
 
 // Set these to your desired credentials.
-const char *ssid = "=Spaceballesp32";
+const char *ssid = "Spaceballesp32";
 const char *password = "capstone";
 
 WiFiServer server(80);
@@ -143,7 +141,7 @@ void setup()
   Serial.print("AP IP address: ");
   Serial.println(myIP);
 
-  myIMU.begin();
+
   
 //  /*use mdns for host name resolution*/
 //  if (!MDNS.begin(host)) { //http://esp32.local
@@ -210,32 +208,7 @@ void loop()
     Serial.println("New Client.");           // print a message out the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
-//      //client.write("test");
-//      //client.write("\r\n");
-//       //Get all parameters
-//  client.print("\nAccelerometer:\n");
-//  client.print(" X = ");
-//  client.println(myIMU.readFloatAccelX(), 4);
-//  client.print(" Y = ");
-//  client.println(myIMU.readFloatAccelY(), 4);
-//  client.print(" Z = ");
-//  client.println(myIMU.readFloatAccelZ(), 4);
-//
-//  client.print("\nGyroscope:\n");
-//  client.print(" X = ");
-//  client.println(myIMU.readFloatGyroX(), 4);
-//  client.print(" Y = ");
-//  client.println(myIMU.readFloatGyroY(), 4);
-//  client.print(" Z = ");
-//  client.println(myIMU.readFloatGyroZ(), 4);
-//
-//  client.print("\nThermometer:\n");
-//  client.print(" Degrees C = ");
-//  client.println(myIMU.readTempC(), 4);
-//  client.print(" Degrees F = ");
-//  client.println(myIMU.readTempF(), 4);
-  
-  //delay(1000);
+
       if (client.available()) {             // if there's bytes to read from the client,
         
         char c = client.read();             // read a byte, then
@@ -279,11 +252,7 @@ void loop()
         if (currentLine.endsWith("GET /H1")) {
           solenoidValve_1.on(); // 1. turns on
           server.println("Solenoid 1 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 1 OFF");
-          delay(1);
-          server.println("Solenoid 1 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
           server.println("Solenoid 1 OFF");
           solenoidValve_1.off();// 3. turns off
           //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
@@ -292,11 +261,7 @@ void loop()
         if (currentLine.endsWith("GET /H2")) {
           solenoidValve_2.on(); // 1. turns on
           server.println("Solenoid 2 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 2 OFF");
-          delay(1);
-          server.println("Solenoid 2 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
           server.println("Solenoid 2 OFF");
           solenoidValve_2.off();// 3. turns off
           //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
@@ -305,11 +270,7 @@ void loop()
         if (currentLine.endsWith("GET /H3")) {
           solenoidValve_3.on(); // 1. turns on
           server.println("Solenoid 3 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 3 OFF");
-          delay(1);
-          server.println("Solenoid 3 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
           server.println("Solenoid 3 OFF");
           solenoidValve_3.off();// 3. turns off
           //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
@@ -318,11 +279,7 @@ void loop()
         if (currentLine.endsWith("GET /H4")) {
           solenoidValve_4.on(); // 1. turns on
           server.println("Solenoid 4 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 4 OFF");
-          delay(1);
-          server.println("Solenoid 4 ON");
-          delay(50);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
           server.println("Solenoid 4 OFF");
           solenoidValve_4.off();// 3. turns off
           //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
