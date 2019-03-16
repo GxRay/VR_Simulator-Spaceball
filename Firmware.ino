@@ -29,7 +29,7 @@ WebServer server2(81);
 #define maxpitchfronttoback 30
 #define maxpitchbacktofront 22
 #define centerfrompitchforward 12
-#define centerfrompitchback 21
+#define centerfrompitchback 18
 #define centerfromrollleft 16
 #define centerfromrollright 10
 
@@ -141,7 +141,7 @@ void rightroll(int j)
     delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
     server.println("Solenoid 1 OFF");
     solenoidValve_1.off();// 3. turns off
-    delay(100);
+    delay(80);
     i=i+1;
   }
   
@@ -155,7 +155,7 @@ void leftroll(int j)
     delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
     server.println("Solenoid 2 OFF");
     solenoidValve_2.off();// 3. turns off
-    delay(100);
+    delay(80);
     i=i+1;
   }
   
@@ -169,7 +169,7 @@ void pitchback(int j)
     delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
     server.println("Solenoid 3 OFF");
     solenoidValve_3.off();// 3. turns off
-    delay(100);
+    delay(80);
     i=i+1;
   }
   
@@ -183,7 +183,7 @@ void pitchforward(int j)
     delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
     server.println("Solenoid 4 OFF");
     solenoidValve_4.off();// 3. turns off
-    delay(100);
+    delay(80);
     i=i+1;
   }
   
