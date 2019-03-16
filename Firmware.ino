@@ -11,7 +11,6 @@
 
 
 
-
 // Set these to your desired credentials.
 const char *ssid = "Spaceballesp32";
 const char *password = "capstone";
@@ -20,11 +19,19 @@ WiFiServer server(80);
 WebServer server2(81);
 
 // Pin Definitions
-#define SOLENOIDVALVE_1_PIN_COIL1	13
-#define SOLENOIDVALVE_2_PIN_COIL1	12
-#define SOLENOIDVALVE_3_PIN_COIL1	27
-#define SOLENOIDVALVE_4_PIN_COIL1	33
-
+#define SOLENOIDVALVE_1_PIN_COIL1  13
+#define SOLENOIDVALVE_2_PIN_COIL1 12
+#define SOLENOIDVALVE_3_PIN_COIL1 27
+#define SOLENOIDVALVE_4_PIN_COIL1 33
+//Movement Definitions
+#define maxrolllefttoright 22
+#define maxrollrighttoleft 35
+#define maxpitchfronttoback 30
+#define maxpitchbacktofront 22
+#define centerfrompitchforward 12
+#define centerfrompitchback 21
+#define centerfromrollleft 16
+#define centerfromrollright 10
 
 
 // Global variables and defines
@@ -124,6 +131,74 @@ const char* serverIndex =
 /*
  * setup function
  */
+
+void rightroll(int j)
+{ 
+  int i = 0;
+  while (i<j){
+    solenoidValve_1.on(); // 1. turns on
+    server.println(j);
+    delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+    server.println("Solenoid 1 OFF");
+    solenoidValve_1.off();// 3. turns off
+    i=i+1;
+  }
+  
+}
+void leftroll(int j)
+{ 
+  int i = 0;
+  while (i<j){
+    solenoidValve_2.on(); // 1. turns on
+    server.println(j);
+    delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+    server.println("Solenoid 2 OFF");
+    solenoidValve_2.off();// 3. turns off
+    i=i+1;
+  }
+  
+}
+void pitchback(int j)
+{ 
+  int i = 0;
+  while (i<j){
+    solenoidValve_3.on(); // 1. turns on
+    server.println(j);
+    delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+    server.println("Solenoid 3 OFF");
+    solenoidValve_3.off();// 3. turns off
+    i=i+1;
+  }
+  
+}
+void pitchforward(int j)
+{ 
+  int i = 0;
+  while (i<j){
+    solenoidValve_4.on(); // 1. turns on
+    server.println(j);
+    delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+    server.println("Solenoid 4 OFF");
+    solenoidValve_4.off();// 3. turns off
+    i=i+1;
+  }
+  
+}
+void calibrate()
+{
+  //going all the way right then going to center from right
+  rightroll(maxrolllefttoright);
+
+  leftroll(centerfromrollright);
+  // going all the way back then back to center
+  pitchback(maxpitchfronttoback);
+
+  pitchforward(centerfrompitchback);
+  
+  
+
+}
+
 
 // Setup the essentials for your circuit to work. It runs first every time your circuit is powered with electricity.
 void setup() 
@@ -236,7 +311,7 @@ void loop()
             
             client.print("Click <a href=\"/H4\">here</a> to turn ON the Solenoid 4.<br>");
             //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
-
+            client.print("Click <a href=\"/H5\">here</a> to Calibrate.<br>");
             // The HTTP response ends with another blank line:
             client.println();
             // break out of the while loop:
@@ -284,7 +359,9 @@ void loop()
           solenoidValve_4.off();// 3. turns off
           //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
         }
-        
+        if (currentLine.endsWith("GET /H5")) {
+          calibrate();
+        }
       }
     }
     // close the connection:
