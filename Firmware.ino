@@ -29,8 +29,9 @@ WebServer server2(81);
 #define maxpitchfronttoback 30
 #define maxpitchbacktofront 22
 #define centerfrompitchforward 12
-#define centerfrompitchback 18
-#define centerfromrollleft 16
+#define centerfrompitchback 16
+//#define centerfromrollleft 16
+#define centerfromrollleft 15
 #define centerfromrollright 10
 
 
