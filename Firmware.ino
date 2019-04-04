@@ -292,86 +292,118 @@ void loop()
     Serial.println("New Client.");           // print a message out the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
+       
 
-      if (client.available()) {             // if there's bytes to read from the client,
+//    if (client.available()) {             // if there's bytes to read from the client,
+        String content = "";
+        char v = client.read();
+        char x = client.read();
+        char y = client.read();
+        content.concat(x);
+        content.concat(y);
+        Serial.println(v);
+        Serial.println(content);
+        int  rot= content.toInt();
+        client.flush();
         
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n') {                    // if the byte is a newline character
-
-          // if the current line is blank, you got two newline characters in a row.
-          // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println();
-
-            // the content of the HTTP response follows the header:
-            client.print("Click <a href=\"/H1\">here</a> to turn ON the Solenoid 1.<br>");
-            //client.print("Click <a href=\"/L1\">here</a> to turn OFF the Solenoid 1.<br>");
-
-            client.print("Click <a href=\"/H2\">here</a> to turn ON the Solenoid 2.<br>");
-            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
-
-            client.print("Click <a href=\"/H3\">here</a> to turn ON the Solenoid 3.<br>");
-            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
-            
-            client.print("Click <a href=\"/H4\">here</a> to turn ON the Solenoid 4.<br>");
-            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
-            client.print("Click <a href=\"/H5\">here</a> to Calibrate.<br>");
-            // The HTTP response ends with another blank line:
-            client.println();
-            // break out of the while loop:
-            break;
-          } else {    // if you got a newline, then clear currentLine:
-            currentLine = "";
-          }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
-
-        // Check to see if the client request was "GET /H" or "GET /L":
-        if (currentLine.endsWith("GET /H1")) {
-          solenoidValve_1.on(); // 1. turns on
-          server.println("Solenoid 1 ON");
-          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 1 OFF");
-          solenoidValve_1.off();// 3. turns off
-          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-        }
-               
-        if (currentLine.endsWith("GET /H2")) {
-          solenoidValve_2.on(); // 1. turns on
-          server.println("Solenoid 2 ON");
-          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 2 OFF");
-          solenoidValve_2.off();// 3. turns off
-          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-        }
-
-        if (currentLine.endsWith("GET /H3")) {
-          solenoidValve_3.on(); // 1. turns on
-          server.println("Solenoid 3 ON");
-          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 3 OFF");
-          solenoidValve_3.off();// 3. turns off
-          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-        }
-
-        if (currentLine.endsWith("GET /H4")) {
-          solenoidValve_4.on(); // 1. turns on
-          server.println("Solenoid 4 ON");
-          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-          server.println("Solenoid 4 OFF");
-          solenoidValve_4.off();// 3. turns off
-          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
-        }
-        if (currentLine.endsWith("GET /H5")) {
+//        char c = client.read();             // read a byte, then
+//        Serial.write(c);                    // print it out the serial monitor
+//        if (c == '\n') {                    // if the byte is a newline character
+//
+//          // if the current line is blank, you got two newline characters in a row.
+//          // that's the end of the client HTTP request, so send a response:
+//          if (currentLine.length() == 0) {
+//            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+//            // and a content-type so the client knows what's coming, then a blank line:
+//            client.println("HTTP/1.1 200 OK");
+//            client.println("Content-type:text/html");
+//            client.println();
+//
+//            // the content of the HTTP response follows the header:
+//            client.print("Click <a href=\"/H1\">here</a> to turn ON the Solenoid 1.<br>");
+//            //client.print("Click <a href=\"/L1\">here</a> to turn OFF the Solenoid 1.<br>");
+//
+//            client.print("Click <a href=\"/H2\">here</a> to turn ON the Solenoid 2.<br>");
+//            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
+//
+//            client.print("Click <a href=\"/H3\">here</a> to turn ON the Solenoid 3.<br>");
+//            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
+//            
+//            client.print("Click <a href=\"/H4\">here</a> to turn ON the Solenoid 4.<br>");
+//            //client.print("Click <a href=\"/L2\">here</a> to turn OFF the Solenoid 2.<br>");
+//            client.print("Click <a href=\"/H5\">here</a> to Calibrate.<br>");
+//            // The HTTP response ends with another blank line:
+//            client.println();
+//            // break out of the while loop:
+//            break;
+//          } else {    // if you got a newline, then clear currentLine:
+//            currentLine = "";
+//          }
+//        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+//          currentLine += c;      // add it to the end of the currentLine
+//        }
+//
+//        // Check to see if the client request was "GET /H" or "GET /L":
+//        if (currentLine.endsWith("GET /H1")) {
+//          solenoidValve_1.on(); // 1. turns on
+//          server.println("Solenoid 1 ON");
+//          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//          server.println("Solenoid 1 OFF");
+//          solenoidValve_1.off();// 3. turns off
+//          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//        }
+//               
+//        if (currentLine.endsWith("GET /H2")) {
+//          solenoidValve_2.on(); // 1. turns on
+//          server.println("Solenoid 2 ON");
+//          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//          server.println("Solenoid 2 OFF");
+//          solenoidValve_2.off();// 3. turns off
+//          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//        }
+//
+//        if (currentLine.endsWith("GET /H3")) {
+//          solenoidValve_3.on(); // 1. turns on
+//          server.println("Solenoid 3 ON");
+//          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//          server.println("Solenoid 3 OFF");
+//          solenoidValve_3.off();// 3. turns off
+//          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//        }
+//
+//        if (currentLine.endsWith("GET /H4")) {
+//          solenoidValve_4.on(); // 1. turns on
+//          server.println("Solenoid 4 ON");
+//          delay(10);       // 2. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//          server.println("Solenoid 4 OFF");
+//          solenoidValve_4.off();// 3. turns off
+//          //delay(1000);       // 4. waits 500 milliseconds (0.5 sec). Change the value in the brackets (500) for a longer or shorter delay in milliseconds.
+//        }
+//        if (currentLine.endsWith("GET /H5")) {
+//          calibrate();
+//        }
+        switch (v){
+          case '0':
           calibrate();
-        }
-      }
+          break;
+          case '1':
+          rightroll(rot);
+          break;
+          case '2': 
+          leftroll(rot);
+          break;
+          case '3':
+          pitchback (rot);
+          break;
+          case '4':
+          pitchforward (rot);
+          break;
+          default:
+          break;
+  
+}
+
+     // }
     }
     // close the connection:
     client.stop();
