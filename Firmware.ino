@@ -8,15 +8,26 @@
 #include <ESPmDNS.h>
 #include <WebServer.h>
 #include <Update.h>
+#include "esp_wpa2.h" //wpa2 library for connections to Enterprise networks
 
 
 
-// Set these to your desired credentials.
-const char *ssid = "Spaceballesp32";
-const char *password = "capstone";
+//// Set these to your desired credentials.
+//const char *ssid = "Spaceballesp32";
+//const char *password = "capstone";
+
+
+
+#define EAP_ANONYMOUS_IDENTITY "anonymous@example.com"
+#define EAP_IDENTITY ""
+#define EAP_PASSWORD ""
+const char* ssid = "RU-Secure"; // Eduroam SSID
+//const char* host = "arduino.php5.sk"; //external server domain for HTTP connection after authentification
+int counter = 0;
 
 WiFiServer server(80);
 WebServer server2(81);
+WiFiClient client;   // listen for incoming clients
 
 // Pin Definitions
 #define SOLENOIDVALVE_1_PIN_COIL1  13
@@ -42,96 +53,6 @@ SolenoidValve solenoidValve_1(SOLENOIDVALVE_1_PIN_COIL1);
 SolenoidValve solenoidValve_2(SOLENOIDVALVE_2_PIN_COIL1);
 SolenoidValve solenoidValve_3(SOLENOIDVALVE_3_PIN_COIL1);
 SolenoidValve solenoidValve_4(SOLENOIDVALVE_4_PIN_COIL1);
-
-/*
- * Login page
- */
-
-const char* loginIndex = 
- "<form name='loginForm'>"
-    "<table width='20%' bgcolor='A09F9F' align='center'>"
-        "<tr>"
-            "<td colspan=2>"
-                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
-                "<br>"
-            "</td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<td>Username:</td>"
-        "<td><input type='text' size=25 name='userid'><br></td>"
-        "</tr>"
-        "<br>"
-        "<br>"
-        "<tr>"
-            "<td>Password:</td>"
-            "<td><input type='Password' size=25 name='pwd'><br></td>"
-            "<br>"
-            "<br>"
-        "</tr>"
-        "<tr>"
-            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
-        "</tr>"
-    "</table>"
-"</form>"
-"<script>"
-    "function check(form)"
-    "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
-    "{"
-    "window.open('/serverIndex')"
-    "}"
-    "else"
-    "{"
-    " alert('Error Password or Username')/*displays error message*/"
-    "}"
-    "}"
-"</script>";
- 
-/*
- * Server Index Page
- */
- 
-const char* serverIndex = 
-"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
-"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
-   "<input type='file' name='update'>"
-        "<input type='submit' value='Update'>"
-    "</form>"
- "<div id='prg'>progress: 0%</div>"
- "<script>"
-  "$('form').submit(function(e){"
-  "e.preventDefault();"
-  "var form = $('#upload_form')[0];"
-  "var data = new FormData(form);"
-  " $.ajax({"
-  "url: '/update',"
-  "type: 'POST',"
-  "data: data,"
-  "contentType: false,"
-  "processData:false,"
-  "xhr: function() {"
-  "var xhr = new window.XMLHttpRequest();"
-  "xhr.upload.addEventListener('progress', function(evt) {"
-  "if (evt.lengthComputable) {"
-  "var per = evt.loaded / evt.total;"
-  "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
-  "}"
-  "}, false);"
-  "return xhr;"
-  "},"
-  "success:function(d, s) {"
-  "console.log('success!')" 
- "},"
- "error: function (a, b, c) {"
- "}"
- "});"
- "});"
- "</script>";
-
-/*
- * setup function
- */
 
 void rightroll(int j)
 { 
@@ -203,8 +124,6 @@ void calibrate()
   
   // going all the way back then back to center
   
-  
-  
 
 }
 
@@ -212,81 +131,76 @@ void calibrate()
 // Setup the essentials for your circuit to work. It runs first every time your circuit is powered with electricity.
 void setup() 
 {
-    // Setup Serial which is useful for debugging
-    // Use the Serial Monitor to view printed messages
-    Serial.begin(115200);
-    //while (!Serial) ; // wait for serial port to connect. Needed for native USB
-    Serial.println("start");
-    Serial.println("Configuring access point...");
+//    // Setup Serial which is useful for debugging
+//    // Use the Serial Monitor to view printed messages
+//    Serial.begin(115200);
+//    //while (!Serial) ; // wait for serial port to connect. Needed for native USB
+//    Serial.println("start");
+//    Serial.println("Configuring access point...");
+//
+//  // You can remove the password parameter if you want the AP to be open.
+//  WiFi.softAP(ssid, password);
+//  IPAddress myIP = WiFi.softAPIP();
+//  Serial.print("AP IP address: ");
+//  Serial.println(myIP);
+//  
 
-  // You can remove the password parameter if you want the AP to be open.
-  WiFi.softAP(ssid, password);
-  IPAddress myIP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(myIP);
+//  server2.begin();
+//  
+//  Serial.println("Web Server started");
 
-
-  
-//  /*use mdns for host name resolution*/
-//  if (!MDNS.begin(host)) { //http://esp32.local
-//    Serial.println("Error setting up MDNS responder!");
-//    while (1) {
-//      delay(1000);
-//    }
-//  }
-//  Serial.println("mDNS responder started");
-//  /*return index page which is stored in serverIndex */
-
-  server2.on("/", HTTP_GET, []() {
-    server2.sendHeader("Connection", "close");
-    server2.send(200, "text/html", loginIndex);
-  });
-  server2.on("/serverIndex", HTTP_GET, []() {
-    server2.sendHeader("Connection", "close");
-    server2.send(200, "text/html", serverIndex);
-  });
-  /*handling uploading firmware file */
-  server2.on("/update", HTTP_POST, []() {
-    server2.sendHeader("Connection", "close");
-    server2.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
-    ESP.restart();
-  }, []() {
-    HTTPUpload& upload = server2.upload();
-    if (upload.status == UPLOAD_FILE_START) {
-      Serial.printf("Update: %s\n", upload.filename.c_str());
-      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_WRITE) {
-      /* flashing firmware to ESP*/
-      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
-        Update.printError(Serial);
-      }
-    } else if (upload.status == UPLOAD_FILE_END) {
-      if (Update.end(true)) { //true to set the size to the current progress
-        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-      } else {
-        Update.printError(Serial);
-      }
+  Serial.begin(115200);
+  delay(10);
+  Serial.println();
+  Serial.print("Connecting to network: ");
+  Serial.println(ssid);
+  WiFi.disconnect(true);  //disconnect form wifi to set new wifi connection
+  WiFi.mode(WIFI_STA); //init wifi mode
+ esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_ANONYMOUS_IDENTITY, strlen(EAP_ANONYMOUS_IDENTITY)); 
+  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
+  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD));
+  esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT(); //set config settings to default
+  esp_wifi_sta_wpa2_ent_enable(&config); //set config settings to enable function
+  WiFi.begin(ssid); //connect to wifi
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    counter++;
+    if(counter>=60){ //after 30 seconds timeout - reset board
+      ESP.restart();
     }
-  });
-  
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address set: "); 
+  Serial.println(WiFi.localIP()); //print LAN IP
+
   server.begin();
-  server2.begin();
   Serial.println("Server started");
-  Serial.println("Web Server started");
-
-
 }
 
 // Main logic of your circuit. It defines the interaction between the components you selected. After setup, it runs over and over again, in an eternal loop.
 void loop() 
 {
-  
-  
-  WiFiClient client = server.available();   // listen for incoming clients
-  server2.handleClient();
-  
+
+  if (WiFi.status() == WL_CONNECTED) { //if we are connected to Eduroam network
+    counter = 0; //reset counter
+    Serial.println("Wifi is still connected with IP: "); 
+    Serial.println(WiFi.localIP());   //inform user about his IP address
+  }else if (WiFi.status() != WL_CONNECTED) { //if we lost connection, retry
+    WiFi.begin(ssid);      
+  }
+  while (WiFi.status() != WL_CONNECTED) { //during lost connection, print dots
+    delay(500);
+    Serial.print(".");
+    counter++;
+    if(counter>=60){ //30 seconds timeout - reset board
+    ESP.restart();
+    }
+  }
+
+  client = server.available();
+    
   delay(1);
   if (client) {                             // if you get a client,
     Serial.println("New Client.");           // print a message out the serial port
@@ -406,8 +320,8 @@ void loop()
      // }
     }
     // close the connection:
-    client.stop();
-    Serial.println("Client Disconnected.");
+    //client.stop();
+    //Serial.println("Client Disconnected.");
   }
 }
 
